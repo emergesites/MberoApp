@@ -128,7 +128,49 @@ function fileToBase64(file) {
 
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 
+function validatePhone(value) {
+  const digits = value.replace(/[\s\-()]/g, "");
+  if (/^0\d{9}$/.test(digits)) return true;
+  if (/^\+?27\d{9}$/.test(digits)) return true;
+  return false;
+}
+
+function validateEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function validateForm(form, statusElement) {
+  const phone = form.querySelector('input[name="phone"]');
+  if (phone && phone.value.trim() && !validatePhone(phone.value)) {
+    setStatus(statusElement, "Enter a valid SA phone number (e.g. 081 467 3054 or +27 81 467 3054).", "error");
+    phone.focus();
+    return false;
+  }
+
+  const email = form.querySelector('input[name="email"]');
+  if (email && email.value.trim() && !validateEmail(email.value)) {
+    setStatus(statusElement, "Enter a valid email address.", "error");
+    email.focus();
+    return false;
+  }
+
+  const requiredFields = form.querySelectorAll("[required]");
+  for (const field of requiredFields) {
+    if (!field.value.trim()) {
+      const label = form.querySelector(`label[for="${field.id}"]`);
+      const name = label ? label.textContent.trim() : "This field";
+      setStatus(statusElement, `${name} is required.`, "error");
+      field.focus();
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function submitToGoogleAppsScript(formType, form, statusElement) {
+  if (!validateForm(form, statusElement)) return;
+
   setStatus(statusElement, "Submitting...", "neutral");
 
   try {
@@ -182,6 +224,12 @@ async function submitToGoogleAppsScript(formType, form, statusElement) {
       "success"
     );
     form.reset();
+
+    setTimeout(() => {
+      if (statusElement.classList.contains("text-green-600")) {
+        statusElement.textContent = "";
+      }
+    }, 5000);
   } catch (error) {
     setStatus(statusElement, error.message || "Submission failed. Please try again.", "error");
   }
@@ -425,6 +473,76 @@ function initHomePage() {
   startSlideshow();
 }
 
+const ourWorkProjects = [
+  {
+    before: "img/BeforeAfterGrass/Before.jpeg",
+    after: "img/BeforeAfterGrass/Aftre1.jpeg",
+    service: "Grounds & Maintenance",
+    title: "School grounds clean-up",
+  },
+  {
+    before: "img/BeforeAfterGrass/Before.jpeg",
+    after: "img/BeforeAfterGrass/After2.jpeg",
+    service: "Grounds & Maintenance",
+    title: "Large-area grass cutting",
+  },
+  {
+    before: "img/BeforeAfterGrass/Before.jpeg",
+    after: "img/BeforeAfterGrass/After3.jpeg",
+    service: "Grounds & Maintenance",
+    title: "Garden restoration project",
+  },
+  {
+    before: "img/BeforeAfterPipe/Before.jpeg",
+    after: "img/BeforeAfterPipe/After.jpeg",
+    service: "Plumbing & Water",
+    title: "Pipe repair & maintenance",
+  },
+];
+
+function initOurWorkCarousel() {
+  const track = document.getElementById("our-work-track");
+  if (!track) return;
+
+  track.innerHTML = ourWorkProjects
+    .map(
+      (project) => `
+      <li class="glide__slide">
+        <div class="group relative overflow-hidden rounded-[24px] bg-white shadow-lg ring-1 ring-slate-200">
+          <div class="grid grid-cols-2">
+            <div class="relative">
+              <img src="${asset(project.before)}" alt="Before" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
+              <span class="absolute top-3 left-3 rounded-full bg-red-500/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Before</span>
+            </div>
+            <div class="relative">
+              <img src="${asset(project.after)}" alt="After" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
+              <span class="absolute top-3 right-3 rounded-full bg-green-500/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">After</span>
+            </div>
+          </div>
+          <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/90 via-slate-900/60 to-transparent p-5 pt-10">
+            <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-300">${escapeHtml(project.service)}</p>
+            <p class="mt-1 text-lg font-black text-white">${escapeHtml(project.title)}</p>
+          </div>
+        </div>
+      </li>
+    `
+    )
+    .join("");
+
+  new Glide("#our-work-carousel", {
+    type: "carousel",
+    perView: 1,
+    focusAt: "center",
+    gap: 30,
+    peek: { before: 120, after: 120 },
+    autoplay: 4000,
+    hoverpause: true,
+    breakpoints: {
+      768: { peek: { before: 40, after: 40 }, gap: 16 },
+    },
+  }).mount();
+}
+
 function initMobileMenu() {
   const toggle = document.getElementById("menu-toggle");
   const navLinks = document.getElementById("nav-links");
@@ -462,6 +580,7 @@ function initMobileMenu() {
 document.addEventListener("DOMContentLoaded", () => {
   initMobileMenu();
   initHomePage();
+  initOurWorkCarousel();
   initQuoteForm();
   initContractorForm();
 });
