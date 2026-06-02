@@ -117,12 +117,38 @@ async function parseAppsScriptResponse(response) {
   }
 }
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+
 async function submitToGoogleAppsScript(formType, form, statusElement) {
   setStatus(statusElement, "Submitting...", "neutral");
 
   try {
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
+
+    const fileInput = form.querySelector('input[type="file"]');
+    const file = fileInput && fileInput.files[0];
+
+    if (file) {
+      if (file.size > MAX_PHOTO_SIZE) {
+        setStatus(statusElement, "Photo must be under 5 MB.", "error");
+        return;
+      }
+      payload.photoBase64 = await fileToBase64(file);
+      payload.photoName = file.name;
+      payload.photoMime = file.type;
+    }
+
+    delete payload.photo;
 
     const jsonBody = JSON.stringify({
       formType,
@@ -395,7 +421,42 @@ function initHomePage() {
   startSlideshow();
 }
 
+function initMobileMenu() {
+  const toggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+  const iconOpen = document.getElementById("menu-icon-open");
+  const iconClose = document.getElementById("menu-icon-close");
+  if (!toggle || !navLinks) return;
+
+  toggle.addEventListener("click", () => {
+    const isOpen = navLinks.classList.contains("flex");
+    if (isOpen) {
+      navLinks.classList.remove("flex");
+      navLinks.classList.add("hidden");
+      iconOpen.classList.remove("hidden");
+      iconClose.classList.add("hidden");
+    } else {
+      navLinks.classList.remove("hidden");
+      navLinks.classList.add("flex");
+      iconOpen.classList.add("hidden");
+      iconClose.classList.remove("hidden");
+    }
+  });
+
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth < 768) {
+        navLinks.classList.remove("flex");
+        navLinks.classList.add("hidden");
+        iconOpen.classList.remove("hidden");
+        iconClose.classList.add("hidden");
+      }
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  initMobileMenu();
   initHomePage();
   initQuoteForm();
   initContractorForm();
