@@ -4,7 +4,7 @@ const NOTIFICATION_EMAIL = 'smpwecare@gmail.com';
 
 // Brevo (ex-Sendinblue) SMTP API key — paste your key below
 const BREVO_API_KEY = 'YOUR_BREVO_API_KEY';
-const BREVO_SENDER_EMAIL = 'smpwecare@gmail.com';
+const BREVO_SENDER_EMAIL = 'emergesites@gmail.com';
 const BREVO_SENDER_NAME = 'SmP – WE CARE';
 
 function myFunction() {
