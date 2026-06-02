@@ -224,6 +224,12 @@ async function submitToGoogleAppsScript(formType, form, statusElement) {
       "success"
     );
     form.reset();
+
+    setTimeout(() => {
+      if (statusElement.classList.contains("text-green-600")) {
+        statusElement.textContent = "";
+      }
+    }, 5000);
   } catch (error) {
     setStatus(statusElement, error.message || "Submission failed. Please try again.", "error");
   }
@@ -525,12 +531,14 @@ function initOurWorkCarousel() {
 
   new Glide("#our-work-carousel", {
     type: "carousel",
-    perView: 2,
-    gap: 24,
+    perView: 1,
+    focusAt: "center",
+    gap: 30,
+    peek: { before: 120, after: 120 },
     autoplay: 4000,
     hoverpause: true,
     breakpoints: {
-      768: { perView: 1 },
+      768: { peek: { before: 40, after: 40 }, gap: 16 },
     },
   }).mount();
 }

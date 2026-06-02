@@ -60,6 +60,17 @@
       background: rgb(22 163 74) !important;
       transform: scale(1.3);
     }
+
+    .glide__slide {
+      opacity: 0.5;
+      transform: scale(0.9);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .glide__slide--active {
+      opacity: 1;
+      transform: scale(1);
+    }
   </style>
 </head>
 <body class="font-sans text-slate-800">
@@ -215,7 +226,7 @@
       </div>
     </section>
 
-    <section id="quote-form" class="px-4 pb-20 sm:px-6 lg:px-8">
+    <section id="quote-form" class="px-4 pt-10 pb-20 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-3xl rounded-[36px] bg-white p-7 shadow-2xl ring-1 ring-slate-200 sm:p-10">
         <div class="text-center">
           <p class="text-sm font-bold uppercase tracking-[0.3em] text-green-700">Submit a quote</p>
