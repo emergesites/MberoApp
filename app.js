@@ -124,19 +124,33 @@ async function submitToGoogleAppsScript(formType, form, statusElement) {
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
-    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      body: JSON.stringify({
-        formType,
-        ...payload,
-        submittedAt: new Date().toISOString(),
-      }),
+    const jsonBody = JSON.stringify({
+      formType,
+      ...payload,
+      submittedAt: new Date().toISOString(),
     });
 
-    /* With mode:"no-cors" the browser returns an opaque response
-       (type "opaque", status 0). A network error would reject the
-       promise, so reaching this line means the request was sent. */
+    /* Send as text/plain (the browser default for a string body) so no
+       CORS preflight is triggered. Apps Script still parses the JSON
+       from e.postData.contents. */
+    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+      method: "POST",
+      redirect: "follow",
+      body: jsonBody,
+    });
+
+    let result = {};
+    try {
+      const text = await response.text();
+      result = JSON.parse(text);
+    } catch {
+      /* Google Apps Script may redirect to an HTML page; treat a
+         completed fetch without network error as success. */
+    }
+
+    if (result.success === false) {
+      throw new Error(result.message || "Submission failed.");
+    }
 
     setStatus(
       statusElement,
