@@ -34,7 +34,32 @@ function doPost(e) {
   }
 }
 
+function savePhotoToDrive_(payload) {
+  if (!payload.photoBase64) return '';
+
+  var folder;
+  var folders = DriveApp.getFoldersByName('SMP Quote Photos');
+  if (folders.hasNext()) {
+    folder = folders.next();
+  } else {
+    folder = DriveApp.createFolder('SMP Quote Photos');
+    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  }
+
+  var blob = Utilities.newBlob(
+    Utilities.base64Decode(payload.photoBase64),
+    payload.photoMime || 'image/jpeg',
+    payload.photoName || 'photo.jpg'
+  );
+
+  var file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return file.getUrl();
+}
+
 function saveQuote_(spreadsheet, payload) {
+  var photoLink = savePhotoToDrive_(payload);
+
   const headers = [
     'Submitted At',
     'Name',
@@ -56,10 +81,12 @@ function saveQuote_(spreadsheet, payload) {
     payload.location || '',
     payload.preferredDate || '',
     payload.details || '',
-    payload.photoLink || ''
+    photoLink || payload.photoLink || ''
   ];
 
   appendRow_(spreadsheet, QUOTE_SHEET_NAME, headers, row);
+
+  payload.photoLink = photoLink;
 }
 
 function saveContractor_(spreadsheet, payload) {

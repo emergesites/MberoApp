@@ -117,12 +117,38 @@ async function parseAppsScriptResponse(response) {
   }
 }
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+
 async function submitToGoogleAppsScript(formType, form, statusElement) {
   setStatus(statusElement, "Submitting...", "neutral");
 
   try {
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
+
+    const fileInput = form.querySelector('input[type="file"]');
+    const file = fileInput && fileInput.files[0];
+
+    if (file) {
+      if (file.size > MAX_PHOTO_SIZE) {
+        setStatus(statusElement, "Photo must be under 5 MB.", "error");
+        return;
+      }
+      payload.photoBase64 = await fileToBase64(file);
+      payload.photoName = file.name;
+      payload.photoMime = file.type;
+    }
+
+    delete payload.photo;
 
     const jsonBody = JSON.stringify({
       formType,
