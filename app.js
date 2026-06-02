@@ -421,7 +421,42 @@ function initHomePage() {
   startSlideshow();
 }
 
+function initMobileMenu() {
+  const toggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+  const iconOpen = document.getElementById("menu-icon-open");
+  const iconClose = document.getElementById("menu-icon-close");
+  if (!toggle || !navLinks) return;
+
+  toggle.addEventListener("click", () => {
+    const isOpen = navLinks.classList.contains("flex");
+    if (isOpen) {
+      navLinks.classList.remove("flex");
+      navLinks.classList.add("hidden");
+      iconOpen.classList.remove("hidden");
+      iconClose.classList.add("hidden");
+    } else {
+      navLinks.classList.remove("hidden");
+      navLinks.classList.add("flex");
+      iconOpen.classList.add("hidden");
+      iconClose.classList.remove("hidden");
+    }
+  });
+
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth < 768) {
+        navLinks.classList.remove("flex");
+        navLinks.classList.add("hidden");
+        iconOpen.classList.remove("hidden");
+        iconClose.classList.add("hidden");
+      }
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  initMobileMenu();
   initHomePage();
   initQuoteForm();
   initContractorForm();
