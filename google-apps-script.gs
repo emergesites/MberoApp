@@ -2,6 +2,11 @@ const QUOTE_SHEET_NAME = 'Quote Requests';
 const CONTRACTOR_SHEET_NAME = 'Contractor Registrations';
 const NOTIFICATION_EMAIL = 'emergesites@gmail.com';
 
+// Brevo (ex-Sendinblue) SMTP API key — paste your key below
+const BREVO_API_KEY = 'YOUR_BREVO_API_KEY';
+const BREVO_SENDER_EMAIL = 'emergesites@gmail.com';
+const BREVO_SENDER_NAME = 'SMP Landscaping';
+
 function myFunction() {
   return SpreadsheetApp.getActiveSpreadsheet().getUrl();
 }
@@ -34,7 +39,32 @@ function doPost(e) {
   }
 }
 
+function savePhotoToDrive_(payload) {
+  if (!payload.photoBase64) return '';
+
+  var folder;
+  var folders = DriveApp.getFoldersByName('SMP Quote Photos');
+  if (folders.hasNext()) {
+    folder = folders.next();
+  } else {
+    folder = DriveApp.createFolder('SMP Quote Photos');
+    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  }
+
+  var blob = Utilities.newBlob(
+    Utilities.base64Decode(payload.photoBase64),
+    payload.photoMime || 'image/jpeg',
+    payload.photoName || 'photo.jpg'
+  );
+
+  var file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return file.getUrl();
+}
+
 function saveQuote_(spreadsheet, payload) {
+  var photoLink = savePhotoToDrive_(payload);
+
   const headers = [
     'Submitted At',
     'Name',
@@ -56,10 +86,12 @@ function saveQuote_(spreadsheet, payload) {
     payload.location || '',
     payload.preferredDate || '',
     payload.details || '',
-    payload.photoLink || ''
+    photoLink || payload.photoLink || ''
   ];
 
   appendRow_(spreadsheet, QUOTE_SHEET_NAME, headers, row);
+
+  payload.photoLink = photoLink;
 }
 
 function saveContractor_(spreadsheet, payload) {
@@ -99,6 +131,24 @@ function appendRow_(spreadsheet, sheetName, headers, row) {
   sheet.appendRow(row);
 }
 
+function sendViaBrevo_(to, replyTo, subject, textContent) {
+  var emailPayload = {
+    sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
+    to: [{ email: to }],
+    replyTo: { email: replyTo || to },
+    subject: subject,
+    textContent: textContent
+  };
+
+  UrlFetchApp.fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { 'api-key': BREVO_API_KEY },
+    payload: JSON.stringify(emailPayload),
+    muteHttpExceptions: true
+  });
+}
+
 function sendQuoteEmail_(payload) {
   const subject = 'New SMP quote request';
   const body = [
@@ -114,12 +164,7 @@ function sendQuoteEmail_(payload) {
     'Photo Link: ' + (payload.photoLink || '')
   ].join('\n');
 
-  MailApp.sendEmail({
-    to: NOTIFICATION_EMAIL,
-    replyTo: payload.email || NOTIFICATION_EMAIL,
-    subject,
-    body
-  });
+  sendViaBrevo_(NOTIFICATION_EMAIL, payload.email, subject, body);
 }
 
 function sendContractorEmail_(payload) {
@@ -136,12 +181,7 @@ function sendContractorEmail_(payload) {
     'Notes: ' + (payload.notes || '')
   ].join('\n');
 
-  MailApp.sendEmail({
-    to: NOTIFICATION_EMAIL,
-    replyTo: payload.email || NOTIFICATION_EMAIL,
-    subject,
-    body
-  });
+  sendViaBrevo_(NOTIFICATION_EMAIL, payload.email, subject, body);
 }
 
 function getPayload_(e) {
