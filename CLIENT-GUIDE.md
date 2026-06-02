@@ -1,6 +1,6 @@
-# SMP Landscaping & Construction Services — Client Guide
+# SmP – WE CARE — Site Owner Guide
 
-This guide explains how to manage and update your SMP website.
+This guide is for the **site owner** (non-technical). For developer documentation, see `README.md`.
 
 ---
 
@@ -8,108 +8,139 @@ This guide explains how to manage and update your SMP website.
 
 | Page | What it does |
 |------|-------------|
-| **Home page** (`index.html`) | Hero slideshow, About section, Gallery, Quote request form, Contact info |
-| **Contractor page** (`contractor.html`) | Registration form for contractors who want to work with SMP |
+| **Home page** (`index.html`) | Hero slideshow, About, Gallery, "Our Work" carousel, Quote form, Contact |
+| **Contractor page** (`contractor.html`) | Registration form for contractors who want to work with SmP |
 
 ---
 
-## Google Sheets — Where Submissions Go
+## Where Form Submissions Go
 
-All form submissions are saved to your Google Sheet in two tabs:
+All submissions are saved to your **Google Sheet** in two tabs:
 
-- **Quote Requests** — When a customer submits the quote form on the home page
-- **Contractor Registrations** — When someone registers on the contractor page
+- **Quote Requests** — customer quote submissions from the home page
+- **Contractor Registrations** — contractor sign-ups from the contractor page
 
-Each submission also sends an **email notification** to `emergesites@gmail.com`.
+Each submission also sends an **email notification** to `smpwecare@gmail.com`.
 
-### Columns in Quote Requests
+### Quote Request columns
+
 Submitted At | Name | Phone | Email | Service | Location | Preferred Date | Details | Photo Link
 
-### Columns in Contractor Registrations
+### Contractor Registration columns
+
 Submitted At | Name | Phone | Email | Area | Service | Experience | Notes
 
 ---
 
-## Google Apps Script — Important Settings
+## If Forms Stop Working
 
-Your Apps Script deployment must always have these settings:
-
-| Setting | Required Value |
-|---------|---------------|
-| Execute as | **Me** (emergesites@gmail.com) |
-| Who has access | **Anyone** |
-| Version | **New version** (select this every time you update the code) |
-
-**If forms stop working**, check these settings first:
-1. Go to your Google Sheet → **Extensions** → **Apps Script**
-2. Click **Deploy** → **Manage deployments**
-3. Click the **pencil/edit icon**
-4. Make sure the settings match the table above
-5. Select **New version** under Version
-6. Click **Deploy**
-
----
-
-## Changing the Notification Email
-
-To change where form submissions are emailed:
+This is almost always because the Apps Script needs to be **redeployed**:
 
 1. Open your Google Sheet → **Extensions** → **Apps Script**
-2. Find this line at the top of the code:
-   ```
-   const NOTIFICATION_EMAIL = 'emergesites@gmail.com';
-   ```
-3. Replace the email address with the new one
-4. Click **Save**
-5. **Redeploy** as a new version (Deploy → Manage deployments → Edit → New version → Deploy)
+2. Click **Deploy** → **Manage deployments**
+3. Click the **pencil/edit icon**
+4. Make sure:
+   - **Execute as:** Me
+   - **Who has access:** Anyone
+5. Under **Version**, select **New version**
+6. Click **Deploy**
+
+> Every time the code is changed, you must select "New version" and redeploy. Just clicking "Save" is not enough.
 
 ---
 
-## WhatsApp Contact
+## If Emails Stop Arriving
 
-The website links to WhatsApp at `+27 63 451 6432`. To change this number:
+1. Open the Apps Script editor → click the **clock icon** (Executions) in the left sidebar
+2. Look for the most recent `doPost` entry and click to expand it
+3. Look for lines starting with `[sendViaBrevo_]` — they'll tell you the exact error
+4. Common fixes:
+   - **"API key present: NO"** → Go to Project Settings → Script Properties → add `BREVO_API_KEY`
+   - **"HTTP 401"** → The API key is wrong or expired. Generate a new one in Brevo
+   - **"HTTP 403"** → IP restriction is active. Go to Brevo → Settings → Security → Authorized IPs → make sure API key blocking is **Deactivated**
+
+---
+
+## Changing Contact Details
+
+### Notification email (where form submissions are sent)
+
+1. Open Apps Script (Google Sheet → Extensions → Apps Script)
+2. Change this line near the top:
+   ```
+   const NOTIFICATION_EMAIL = 'smpwecare@gmail.com';
+   ```
+3. Save and **redeploy as new version**
+
+### WhatsApp number
 
 1. Open `index.html` and `contractor.html`
-2. Search for `https://wa.me/27634516432`
-3. Replace with your new number in format `https://wa.me/27XXXXXXXXX` (no spaces, no +)
+2. Search for `https://wa.me/27642323431`
+3. Replace with your new number: `https://wa.me/27XXXXXXXXX` (no spaces, no `+`)
+
+### Phone number
+
+Search for `081 467 3054` in `index.html` and replace it.
+
+### Email address (displayed on site)
+
+Search for `smpwecare@gmail.com` in `index.html` and replace it.
 
 ---
 
-## Updating Gallery Photos
+## Adding Project Photos
 
-To add new project photos to the gallery:
+### Gallery photos
 
-1. Save the image as `.jpeg` in the `img/` folder (use a subfolder like `BeforeAfterGrass/`)
-2. Ask your developer to add the image to the `galleryImages` list in `app.js`
-3. Each image needs: a file path, title, short description, and service category
+1. Save the image as `.jpeg` in the `img/` folder
+2. Ask your developer to add it to the `galleryImages` list in `app.js`
+3. Categories: Landscaping, Plumbing, Electrical, Renovations, Construction
 
-Service categories available: Landscaping, Plumbing, Electrical, Renovations, Construction.
+### "Our Work" before/after cards
 
----
+1. Save the before and after images in `img/`
+2. Ask your developer to add them to the `ourWorkProjects` list in `app.js`
 
-## Updating Slideshow Photos
+### Hero slideshow
 
-The full-screen hero slideshow uses images from `img/SlideShow/`. To change slides:
-
-1. Add or replace `.jpeg` files in the `img/SlideShow/` folder
-2. Ask your developer to update the `heroSlides` list in `app.js`
+1. Save the image in `img/SlideShow/`
+2. Ask your developer to add it to the `heroSlides` list in `app.js`
 
 ---
 
 ## Hosting
 
-This is a static website (no server required). It can be hosted on:
+This is a static website — no server required. It can be hosted on:
 
 - **GitHub Pages** (free) — Enable in repo Settings → Pages
-- **Netlify** (free tier) — Drag and drop the project folder
-- **Vercel** (free tier) — Import the GitHub repo
+- **Netlify** (free) — Drag and drop the project folder
+- **Vercel** (free) — Import the GitHub repo
 - **Any web host** — Upload all files via FTP
 
-No build step is needed. Just upload the files as they are.
+No build step needed. Upload the files as they are.
 
 ---
 
-## Need Help?
+## Accounts You Need Access To
 
-- **WhatsApp**: [+27 63 451 6432](https://wa.me/27634516432)
-- **Email**: emergesites@gmail.com
+| Account | What it's for | How to access |
+|---------|--------------|---------------|
+| **GitHub** | Source code | `github.com/okuhlechar-glitch/MberoApp` |
+| **Google Sheet** | Form submissions database | Shared via Google account |
+| **Google Apps Script** | Server-side form processing | Open from the Google Sheet (Extensions → Apps Script) |
+| **Brevo** | Email notifications | `brevo.com` — login with the account that has the API key |
+| **Hosting platform** | Where the site is live | Depends on chosen host (GitHub Pages, Netlify, etc.) |
+
+---
+
+## Quick Reference
+
+| Item | Value |
+|------|-------|
+| Company name | SmP – WE CARE |
+| Phone | 081 467 3054 |
+| WhatsApp | +27 64 232 3431 |
+| Email | smpwecare@gmail.com |
+| Notification email | smpwecare@gmail.com |
+| Brevo sender | emergesites@gmail.com |
+| Max photo upload | 5 MB (JPG, PNG, WEBP) |
