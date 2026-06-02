@@ -130,27 +130,19 @@ async function submitToGoogleAppsScript(formType, form, statusElement) {
       submittedAt: new Date().toISOString(),
     });
 
-    /* Send as text/plain (the browser default for a string body) so no
-       CORS preflight is triggered. Apps Script still parses the JSON
-       from e.postData.contents. */
-    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+    /* Google Apps Script redirects POST responses to a different
+       domain, which causes a CORS block on the redirect. Using
+       mode:"no-cors" avoids both the preflight and the redirect
+       CORS issue. The POST body is still delivered and doPost()
+       runs server-side. The trade-off: we can't read the response,
+       so a network-level failure rejects the promise while a
+       successful send always appears to succeed. */
+    await fetch(GOOGLE_APPS_SCRIPT_URL, {
       method: "POST",
+      mode: "no-cors",
       redirect: "follow",
       body: jsonBody,
     });
-
-    let result = {};
-    try {
-      const text = await response.text();
-      result = JSON.parse(text);
-    } catch {
-      /* Google Apps Script may redirect to an HTML page; treat a
-         completed fetch without network error as success. */
-    }
-
-    if (result.success === false) {
-      throw new Error(result.message || "Submission failed.");
-    }
 
     setStatus(
       statusElement,
