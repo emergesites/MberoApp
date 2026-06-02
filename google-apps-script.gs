@@ -1,6 +1,6 @@
 const QUOTE_SHEET_NAME = 'Quote Requests';
 const CONTRACTOR_SHEET_NAME = 'Contractor Registrations';
-const NOTIFICATION_EMAIL = 'okcharliesa@gmail.com';
+const NOTIFICATION_EMAIL = 'emergesites@gmail.com';
 
 function myFunction() {
   return SpreadsheetApp.getActiveSpreadsheet().getUrl();
@@ -25,6 +25,7 @@ function doPost(e) {
       sendQuoteEmail_(payload);
     } else {
       saveContractor_(spreadsheet, payload);
+      sendContractorEmail_(payload);
     }
 
     return jsonResponse({ success: true });
@@ -111,6 +112,28 @@ function sendQuoteEmail_(payload) {
     'Preferred Date: ' + (payload.preferredDate || ''),
     'Details: ' + (payload.details || ''),
     'Photo Link: ' + (payload.photoLink || '')
+  ].join('\n');
+
+  MailApp.sendEmail({
+    to: NOTIFICATION_EMAIL,
+    replyTo: payload.email || NOTIFICATION_EMAIL,
+    subject,
+    body
+  });
+}
+
+function sendContractorEmail_(payload) {
+  const subject = 'New SMP contractor registration';
+  const body = [
+    'A new contractor registration was submitted.',
+    '',
+    'Name: ' + (payload.name || ''),
+    'Phone: ' + (payload.phone || ''),
+    'Email: ' + (payload.email || ''),
+    'Area: ' + (payload.area || ''),
+    'Service: ' + (payload.service || ''),
+    'Experience: ' + (payload.experience || '') + ' years',
+    'Notes: ' + (payload.notes || '')
   ].join('\n');
 
   MailApp.sendEmail({
