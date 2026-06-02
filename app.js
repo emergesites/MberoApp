@@ -202,8 +202,13 @@ function initHomePage() {
     return;
   }
 
+  const galleryShowMoreWrap = document.getElementById("gallery-show-more-wrap");
+  const galleryShowMoreBtn = document.getElementById("gallery-show-more");
+  const GALLERY_PAGE_SIZE = 6;
+
   let activeSlideIndex = 0;
   let activeFilter = "All";
+  let galleryShowAll = false;
 
   function updateHeroContent(index) {
     const slide = heroSlides[index];
@@ -286,7 +291,10 @@ function initHomePage() {
       ? galleryImages
       : galleryImages.filter((image) => image.service === filter);
 
-    galleryGrid.innerHTML = filteredImages
+    const visible = galleryShowAll ? filteredImages : filteredImages.slice(0, GALLERY_PAGE_SIZE);
+    const hasMore = filteredImages.length > visible.length;
+
+    galleryGrid.innerHTML = visible
       .map((image) => {
         const originalIndex = galleryImages.findIndex(
           (entry) => entry.image === image.image && entry.title === image.title
@@ -316,6 +324,14 @@ function initHomePage() {
         openModal(galleryImages[Number(button.dataset.galleryIndex)]);
       });
     });
+
+    if (galleryShowMoreWrap) {
+      if (hasMore) {
+        galleryShowMoreWrap.classList.remove("hidden");
+      } else {
+        galleryShowMoreWrap.classList.add("hidden");
+      }
+    }
   }
 
   function renderFilters() {
@@ -338,6 +354,7 @@ function initHomePage() {
     galleryFilters.querySelectorAll("button").forEach((button) => {
       button.addEventListener("click", () => {
         activeFilter = button.dataset.filter;
+        galleryShowAll = false;
         renderFilters();
         renderGallery(activeFilter);
       });
@@ -346,9 +363,15 @@ function initHomePage() {
 
   document.getElementById("open-all-gallery")?.addEventListener("click", () => {
     activeFilter = "All";
+    galleryShowAll = true;
     renderFilters();
     renderGallery(activeFilter);
     document.getElementById("gallery")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  galleryShowMoreBtn?.addEventListener("click", () => {
+    galleryShowAll = true;
+    renderGallery(activeFilter);
   });
 
   closeModalButton?.addEventListener("click", closeModal);
