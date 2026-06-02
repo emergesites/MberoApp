@@ -3,33 +3,33 @@ const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfgV_xT
 const heroSlides = [
   {
     image: "img/SlideShow/WhatsApp Image 2026-06-02 at 10.33.35.jpeg",
-    service: "Landscaping",
-    title: "Professional property work with real project photos.",
-    description: "Full-screen slideshow featuring real SMP projects from the img folder.",
+    service: "Grounds & Maintenance",
+    title: "Quality workmanship for schools and institutions.",
+    description: "SmP – WE CARE delivers compliant, on-time projects for public and private sector clients.",
   },
   {
     image: "img/SlideShow/WhatsApp Image 2026-06-02 at 10.33.35 (1).jpeg",
-    service: "Landscaping",
-    title: "Grounds maintenance done with professional equipment.",
-    description: "Show clients the tools, finished spaces and site quality in one smooth auto-slider.",
+    service: "Grounds & Maintenance",
+    title: "Large-area grass cutting and grounds care.",
+    description: "Professional lawn maintenance for sites of 10,000m² and above.",
   },
   {
     image: "img/SlideShow/WhatsApp Image 2026-06-02 at 10.33.34 (1).jpeg",
-    service: "Landscaping",
-    title: "Clean, neat outdoor spaces after the job is done.",
-    description: "Real before-and-after landscaping results build trust quickly.",
+    service: "Construction & Repairs",
+    title: "Building works, plastering and structural maintenance.",
+    description: "General construction, crack repairs, brickwork and wall rehabilitation.",
   },
   {
     image: "img/SlideShow/WhatsApp Image 2026-06-02 at 10.33.23.jpeg",
-    service: "Electrical",
-    title: "Construction, repairs and installation support in one team.",
-    description: "The slideshow can also highlight electrical and finishing work by SMP.",
+    service: "Painting & Finishes",
+    title: "Interior and exterior painting for institutions.",
+    description: "Classrooms, libraries, admin blocks — surface prep, priming, sealing and repainting.",
   },
   {
     image: "img/SlideShow/WhatsApp Image 2026-06-02 at 10.33.22.jpeg",
-    service: "Plumbing",
-    title: "Practical repairs for pipes, fittings and site maintenance.",
-    description: "Use the same hero to showcase maintenance jobs and utility work.",
+    service: "Plumbing & Water Systems",
+    title: "Toilet repairs, taps and JoJo tank installations.",
+    description: "Water supply connections, reticulation and plumbing maintenance.",
   },
 ];
 
@@ -156,19 +156,23 @@ async function submitToGoogleAppsScript(formType, form, statusElement) {
       submittedAt: new Date().toISOString(),
     });
 
-    /* Google Apps Script redirects POST responses to a different
-       domain, which causes a CORS block on the redirect. Using
-       mode:"no-cors" avoids both the preflight and the redirect
-       CORS issue. The POST body is still delivered and doPost()
-       runs server-side. The trade-off: we can't read the response,
-       so a network-level failure rejects the promise while a
-       successful send always appears to succeed. */
-    await fetch(GOOGLE_APPS_SCRIPT_URL, {
+    /* Apps Script web-app deployed with "Anyone" access returns
+       CORS-enabled JSON responses via redirect to
+       script.googleusercontent.com. If CORS blocks, the catch
+       block handles the error and shows it in the browser console. */
+    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
       method: "POST",
-      mode: "no-cors",
       redirect: "follow",
       body: jsonBody,
     });
+
+    const result = await response.json().catch(() => null);
+
+    if (result && !result.success) {
+      console.error("Server error:", result.message);
+      setStatus(statusElement, result.message || "Submission failed on server.", "error");
+      return;
+    }
 
     setStatus(
       statusElement,

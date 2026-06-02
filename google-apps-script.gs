@@ -1,11 +1,11 @@
 const QUOTE_SHEET_NAME = 'Quote Requests';
 const CONTRACTOR_SHEET_NAME = 'Contractor Registrations';
-const NOTIFICATION_EMAIL = 'emergesites@gmail.com';
+const NOTIFICATION_EMAIL = 'smpwecare@gmail.com';
 
 // Brevo (ex-Sendinblue) SMTP API key — paste your key below
 const BREVO_API_KEY = 'YOUR_BREVO_API_KEY';
 const BREVO_SENDER_EMAIL = 'emergesites@gmail.com';
-const BREVO_SENDER_NAME = 'SMP Landscaping';
+const BREVO_SENDER_NAME = 'SmP – WE CARE';
 
 function myFunction() {
   return SpreadsheetApp.getActiveSpreadsheet().getUrl();
@@ -140,13 +140,19 @@ function sendViaBrevo_(to, replyTo, subject, textContent) {
     textContent: textContent
   };
 
-  UrlFetchApp.fetch('https://api.brevo.com/v3/smtp/email', {
+  var response = UrlFetchApp.fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'post',
     contentType: 'application/json',
     headers: { 'api-key': BREVO_API_KEY },
     payload: JSON.stringify(emailPayload),
     muteHttpExceptions: true
   });
+
+  var code = response.getResponseCode();
+  if (code < 200 || code >= 300) {
+    console.error('Brevo email failed [' + code + ']: ' + response.getContentText());
+    throw new Error('Email send failed (Brevo ' + code + '): ' + response.getContentText());
+  }
 }
 
 function sendQuoteEmail_(payload) {
