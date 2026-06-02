@@ -2,8 +2,8 @@ const QUOTE_SHEET_NAME = 'Quote Requests';
 const CONTRACTOR_SHEET_NAME = 'Contractor Registrations';
 const NOTIFICATION_EMAIL = 'smpwecare@gmail.com';
 
-// Brevo (ex-Sendinblue) SMTP API key — paste your key below
-const BREVO_API_KEY = 'YOUR_BREVO_API_KEY';
+// Brevo API key — stored securely in Project Settings → Script Properties
+const BREVO_API_KEY = PropertiesService.getScriptProperties().getProperty('BREVO_API_KEY');
 const BREVO_SENDER_EMAIL = 'emergesites@gmail.com';
 const BREVO_SENDER_NAME = 'SmP – WE CARE';
 
@@ -17,7 +17,9 @@ function doGet() {
 
 function doPost(e) {
   try {
+    console.log('[doPost] START');
     const payload = getPayload_(e);
+    console.log('[doPost] formType=' + (payload.formType || 'quote'));
     const formType = payload.formType === 'contractor' ? 'contractor' : 'quote';
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -27,14 +29,20 @@ function doPost(e) {
 
     if (formType === 'quote') {
       saveQuote_(spreadsheet, payload);
+      console.log('[doPost] sheet write PASS');
       sendQuoteEmail_(payload);
+      console.log('[doPost] email PASS');
     } else {
       saveContractor_(spreadsheet, payload);
+      console.log('[doPost] sheet write PASS');
       sendContractorEmail_(payload);
+      console.log('[doPost] email PASS');
     }
 
+    console.log('[doPost] END — success');
     return jsonResponse({ success: true });
   } catch (error) {
+    console.error('[doPost] FAIL: ' + error.message);
     return jsonResponse({ success: false, message: error.message });
   }
 }
@@ -132,6 +140,13 @@ function appendRow_(spreadsheet, sheetName, headers, row) {
 }
 
 function sendViaBrevo_(to, replyTo, subject, textContent) {
+  console.log('[sendViaBrevo_] to=' + to + ', subject=' + subject);
+  console.log('[sendViaBrevo_] API key present: ' + (BREVO_API_KEY ? 'YES (length ' + BREVO_API_KEY.length + ')' : 'NO — MISSING!'));
+
+  if (!BREVO_API_KEY) {
+    throw new Error('BREVO_API_KEY is not set. Go to Project Settings → Script Properties and add it.');
+  }
+
   var emailPayload = {
     sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
     to: [{ email: to }],
@@ -140,6 +155,7 @@ function sendViaBrevo_(to, replyTo, subject, textContent) {
     textContent: textContent
   };
 
+  console.log('[sendViaBrevo_] Calling Brevo API...');
   var response = UrlFetchApp.fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'post',
     contentType: 'application/json',
@@ -149,10 +165,15 @@ function sendViaBrevo_(to, replyTo, subject, textContent) {
   });
 
   var code = response.getResponseCode();
+  var body = response.getContentText();
+  console.log('[sendViaBrevo_] HTTP ' + code + ': ' + body);
+
   if (code < 200 || code >= 300) {
-    console.error('Brevo email failed [' + code + ']: ' + response.getContentText());
-    throw new Error('Email send failed (Brevo ' + code + '): ' + response.getContentText());
+    console.error('[sendViaBrevo_] FAIL — Brevo returned HTTP ' + code + ': ' + body);
+    throw new Error('Email send failed (Brevo ' + code + '): ' + body);
   }
+
+  console.log('[sendViaBrevo_] PASS');
 }
 
 function sendQuoteEmail_(payload) {
