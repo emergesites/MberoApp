@@ -126,9 +126,7 @@ async function submitToGoogleAppsScript(formType, form, statusElement) {
 
     const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      mode: "no-cors",
       body: JSON.stringify({
         formType,
         ...payload,
@@ -136,11 +134,9 @@ async function submitToGoogleAppsScript(formType, form, statusElement) {
       }),
     });
 
-    const result = await parseAppsScriptResponse(response);
-
-    if (!response.ok || result.success === false) {
-      throw new Error(result.message || "Submission failed.");
-    }
+    /* With mode:"no-cors" the browser returns an opaque response
+       (type "opaque", status 0). A network error would reject the
+       promise, so reaching this line means the request was sent. */
 
     setStatus(
       statusElement,
