@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register as Contractor | SMP Landscaping & Construction Services</title>
+  <link rel="icon" type="image/jpeg" href="img/Logo.jpeg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: linear-gradient(180deg, #f8faf8 0%, #edf7ef 100%);
+    }
+  </style>
+</head>
+<body class="font-sans text-slate-800">
+  <header class="fixed inset-x-0 top-0 z-40">
+    <div class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+      <nav class="flex flex-col gap-4 rounded-[28px] border border-white/10 bg-slate-950/50 px-5 py-4 text-white shadow-2xl backdrop-blur md:flex-row md:items-center md:justify-between">
+        <a href="index.html" class="flex items-center gap-4">
+          <img src="img/Logo.jpeg" alt="SMP logo" class="h-14 w-14 rounded-2xl object-cover ring-2 ring-white/20">
+          <div>
+            <p class="text-lg font-black tracking-wide">SMP</p>
+            <p class="text-sm text-emerald-100">Landscaping & Construction Services</p>
+          </div>
+        </a>
+
+        <div class="flex flex-wrap items-center gap-3 text-sm font-semibold text-emerald-50">
+          <a href="index.html#about" class="hover:text-white">About</a>
+          <a href="index.html#gallery" class="hover:text-white">Gallery</a>
+          <a href="index.html#quote-form" class="hover:text-white">Request Quote</a>
+          <a href="index.html#contact" class="hover:text-white">Contact</a>
+          <a href="contractor.html" class="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-white transition hover:bg-white/20">Contractor Page</a>
+          <a href="https://wa.me/27634516432" target="_blank" class="rounded-full bg-green-500 px-4 py-2 text-white transition hover:bg-green-400">WhatsApp</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="min-h-screen pt-36 pb-20">
+    <section class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+      <div class="rounded-[36px] bg-slate-950 p-7 text-white shadow-2xl ring-1 ring-slate-800 sm:p-10">
+        <div class="text-center">
+          <p class="text-sm font-bold uppercase tracking-[0.3em] text-emerald-300">Contractor registration</p>
+          <h1 class="mt-4 text-3xl font-black sm:text-5xl">Register your details to work with SMP</h1>
+          <p class="mt-4 text-base leading-8 text-slate-300">Submit your contact info and skills below. Contractor registrations are stored in a separate Google Sheets tab from quote requests.</p>
+        </div>
+
+        <form id="contractorRegistrationForm" class="mt-10 space-y-5">
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label for="contractor-name" class="mb-2 block text-sm font-bold text-slate-200">Full name</label>
+              <input id="contractor-name" name="name" type="text" required class="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-900" placeholder="Your name">
+            </div>
+            <div>
+              <label for="contractor-phone" class="mb-2 block text-sm font-bold text-slate-200">Phone number</label>
+              <input id="contractor-phone" name="phone" type="tel" required class="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-900" placeholder="07x xxx xxxx">
+            </div>
+          </div>
+
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label for="contractor-email" class="mb-2 block text-sm font-bold text-slate-200">Email address</label>
+              <input id="contractor-email" name="email" type="email" required class="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-900" placeholder="name@example.com">
+            </div>
+            <div>
+              <label for="contractor-area" class="mb-2 block text-sm font-bold text-slate-200">Area</label>
+              <input id="contractor-area" name="area" type="text" required class="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-900" placeholder="Town / suburb">
+            </div>
+          </div>
+
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label for="contractor-service" class="mb-2 block text-sm font-bold text-slate-200">Primary service</label>
+              <select id="contractor-service" name="service" required class="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-900">
+                <option value="">Select skill</option>
+                <option>Landscaping</option>
+                <option>Grass Cutting</option>
+                <option>Garden Maintenance</option>
+                <option>Electrical</option>
+                <option>Plumbing</option>
+                <option>Paving</option>
+                <option>Renovations</option>
+                <option>Construction</option>
+              </select>
+            </div>
+            <div>
+              <label for="contractor-experience" class="mb-2 block text-sm font-bold text-slate-200">Years of experience</label>
+              <input id="contractor-experience" name="experience" type="number" min="0" class="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-900" placeholder="e.g. 4">
+            </div>
+          </div>
+
+          <div>
+            <label for="contractor-notes" class="mb-2 block text-sm font-bold text-slate-200">Extra details</label>
+            <textarea id="contractor-notes" name="notes" rows="5" class="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-900" placeholder="Tell SMP about your skills, availability or tools."></textarea>
+          </div>
+
+          <button type="submit" class="w-full rounded-full bg-green-500 px-6 py-4 text-base font-bold text-white transition hover:bg-green-400">Submit contractor registration</button>
+          <p id="contractor-status" class="text-sm font-medium text-slate-300"></p>
+        </form>
+      </div>
+
+      <div class="mt-8 text-center">
+        <a href="index.html" class="text-sm font-bold text-green-700 hover:text-green-900">Back to main site</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-slate-900 py-8 text-white">
+    <div class="mx-auto flex max-w-7xl flex-col gap-5 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+      <div class="flex items-center gap-4">
+        <img src="img/Logo.jpeg" alt="SMP logo" class="h-14 w-14 rounded-2xl object-cover">
+        <div>
+          <p class="text-lg font-black">SMP Landscaping & Construction Services</p>
+          <p class="text-sm text-slate-400">Real work. Real photos. Cleaner spaces. Better sites.</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <a href="index.html#quote-form" class="rounded-full bg-green-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-green-500">Submit Quote</a>
+        <a href="https://wa.me/27634516432" target="_blank" class="rounded-full border border-slate-700 px-5 py-3 text-sm font-bold text-white transition hover:border-green-500 hover:text-green-300">WhatsApp</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
