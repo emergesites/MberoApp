@@ -1,5 +1,6 @@
 // Shared helpers for SMP Apps Script project
 
+const SCRIPT_VERSION = '2026-06-02-v8';
 const QUOTE_SHEET_NAME = 'Quote Requests';
 const CONTRACTOR_SHEET_NAME = 'Contractor Registrations';
 const NOTIFICATION_EMAIL = 'smpwecare@gmail.com';
@@ -9,7 +10,7 @@ function myFunction() {
 }
 
 function doGet() {
-  return jsonResponse({ success: true, message: 'SMP web app is running.' });
+  return jsonResponse({ success: true, message: 'SMP web app is running.', version: SCRIPT_VERSION });
 }
 
 function getBrevoApiKey_() {
@@ -33,19 +34,23 @@ function getPayload_(e) {
   const contentType = e && e.postData && e.postData.type ? e.postData.type : '';
 
   if (rawBody) {
+    console.log('[getPayload_] Raw body length: ' + rawBody.length);
+    console.log('[getPayload_] Content type: ' + contentType);
+
     try {
-      if (contentType.indexOf('application/json') !== -1 || contentType.indexOf('text/json') !== -1) {
-        return JSON.parse(rawBody);
-      }
-
-      if (rawBody.indexOf('=') !== -1) {
-        return parseUrlEncodedBody_(rawBody);
-      }
-
-      return JSON.parse(rawBody);
-    } catch (err) {
-      throw new Error('Unable to parse request body: ' + err.message + '\nbody=' + rawBody);
+      var parsed = JSON.parse(rawBody);
+      console.log('[getPayload_] Parsed as JSON');
+      return parsed;
+    } catch (_) {
+      // Not JSON — try URL-encoded
     }
+
+    if (rawBody.indexOf('=') !== -1) {
+      console.log('[getPayload_] Parsed as URL-encoded');
+      return parseUrlEncodedBody_(rawBody);
+    }
+
+    throw new Error('Unable to parse request body: ' + rawBody.substring(0, 200));
   }
 
   return e && e.parameter ? e.parameter : {};
@@ -69,10 +74,12 @@ function appendRow_(spreadsheet, sheetName, headers, row) {
 }
 
 function sendViaBrevo_(to, replyTo, subject, textContent, attachments) {
+  console.log('[sendViaBrevo_] to=' + to + ', subject=' + subject);
   var BREVO_API_KEY = getBrevoApiKey_();
   var BREVO_SENDER_EMAIL = 'emergesites@gmail.com';
   var BREVO_SENDER_NAME = 'SmP – WE CARE';
 
+  console.log('[sendViaBrevo_] API key present: ' + (BREVO_API_KEY ? 'YES (length ' + BREVO_API_KEY.length + ')' : 'NO — MISSING!'));
   if (!BREVO_API_KEY) {
     throw new Error('BREVO_API_KEY is not set. Go to Project Settings → Script Properties and add it.');
   }
@@ -99,9 +106,11 @@ function sendViaBrevo_(to, replyTo, subject, textContent, attachments) {
 
   var code = response.getResponseCode();
   var body = response.getContentText();
+  console.log('[sendViaBrevo_] HTTP ' + code + ': ' + body);
   if (code < 200 || code >= 300) {
     throw new Error('Brevo send failed (HTTP ' + code + '): ' + body);
   }
+  console.log('[sendViaBrevo_] PASS');
 }
 
 // Manual test helpers
@@ -118,19 +127,39 @@ function testSendBrevo() {
 
 function testSendQuote() {
   var payload = {
-    name: 'Tester',
+    name: 'Test User',
+    phone: '081 467 3054',
     email: NOTIFICATION_EMAIL,
-    details: 'Quote test',
+    service: 'Landscaping',
+    location: 'Johannesburg',
+    preferredDate: '2026-07-01',
+    details: 'This is a test quote request from the editor.',
     photoBase64: ''
   };
   return handleQuoteRequest(null, SpreadsheetApp.getActiveSpreadsheet(), payload);
 }
 
+function testSendContractor() {
+  var payload = {
+    name: 'Test Contractor',
+    phone: '082 555 1234',
+    email: NOTIFICATION_EMAIL,
+    area: 'Pretoria',
+    service: 'Plumbing',
+    experience: '5',
+    notes: 'This is a test contractor registration from the editor.'
+  };
+  return handleContractorRegistration(null, SpreadsheetApp.getActiveSpreadsheet(), payload);
+}
+
 function doPost(e) {
   try {
-    console.log('[doPost] START');
+    console.log('[doPost] START — version ' + SCRIPT_VERSION);
+    console.log('[doPost] postData.type=' + (e && e.postData && e.postData.type));
+    console.log('[doPost] postData.length=' + (e && e.postData && e.postData.length));
     const payload = getPayload_(e);
-    console.log('[doPost] payload=' + JSON.stringify(payload));
+    console.log('[doPost] payload keys: ' + Object.keys(payload).join(', '));
+    console.log('[doPost] formType=' + (payload.formType || 'quote'));
     const formType = payload.formType === 'contractor' ? 'contractor' : 'quote';
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -139,7 +168,7 @@ function doPost(e) {
     if (formType === 'contractor') return handleContractorRegistration(e, spreadsheet, payload);
     return handleQuoteRequest(e, spreadsheet, payload);
   } catch (err) {
-    console.error('[doPost] FAIL: ' + err.message);
-    return jsonResponse({ success: false, message: err.message });
+    console.error('[doPost] FAIL: ' + err.message + '\n' + err.stack);
+    return jsonResponse({ success: false, message: err.message, version: SCRIPT_VERSION });
   }
 }
