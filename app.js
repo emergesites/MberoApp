@@ -202,9 +202,14 @@ async function submitToGoogleAppsScript(formType, form, statusElement) {
        CORS-enabled JSON responses via redirect to
        script.googleusercontent.com. If CORS blocks, the catch
        block handles the error and shows it in the browser console. */
+    // Added text/plain headers to eliminate browser data fragmentation on CORS redirect
     const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
       method: "POST",
+      mode: "cors",
       redirect: "follow",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
       body: jsonBody,
     });
 
