@@ -160,8 +160,8 @@ All configurable values and where to find them:
 | Notification email | `google-apps-script.gs` line 3 | `smpwecare@gmail.com` |
 | Brevo sender email | `google-apps-script.gs` line 7 | `emergesites@gmail.com` |
 | Brevo API key | Apps Script → Project Settings → Script Properties | *(stored securely)* |
-| WhatsApp number | `index.html` and `contractor.html` (search `wa.me/`) | `+27 64 232 3431` |
-| Phone number | `index.html` contact section | `081 467 3054` |
+| WhatsApp number | `index.html` and `contractor.html` (search `wa.me/`) | `+27 81 024 8983` |
+| Phone number | `index.html` contact section | `0810248983` |
 | Company email | `index.html` contact section | `smpwecare@gmail.com` |
 | Max photo upload size | `app.js` (`MAX_PHOTO_SIZE`) | 5 MB |
 
@@ -218,7 +218,7 @@ Edit the `<select>` element in `index.html` (search for `id="quote-service"`).
 
 ### WhatsApp number
 
-Search and replace `wa.me/27642323431` in both `index.html` and `contractor.html`. Format: `wa.me/27XXXXXXXXX` (no spaces, no `+`).
+Search and replace `wa.me/27810248983` in both `index.html` and `contractor.html`. Format: `wa.me/27XXXXXXXXX` (no spaces, no `+`).
 
 ---
 

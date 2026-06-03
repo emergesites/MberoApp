@@ -142,7 +142,7 @@ function validateEmail(value) {
 function validateForm(form, statusElement) {
   const phone = form.querySelector('input[name="phone"]');
   if (phone && phone.value.trim() && !validatePhone(phone.value)) {
-    setStatus(statusElement, "Enter a valid SA phone number (e.g. 081 467 3054 or +27 81 467 3054).", "error");
+    setStatus(statusElement, "Enter a valid SA phone number (e.g. 0810248983 or +27 81 024 8983).", "error");
     phone.focus();
     return false;
   }

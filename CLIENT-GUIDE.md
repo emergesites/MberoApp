@@ -75,12 +75,12 @@ This is almost always because the Apps Script needs to be **redeployed**:
 ### WhatsApp number
 
 1. Open `index.html` and `contractor.html`
-2. Search for `https://wa.me/27642323431`
-3. Replace with your new number: `https://wa.me/27XXXXXXXXX` (no spaces, no `+`)
+2. Search for `https://wa.me/27810248983`
+3. Replace with your new number: `https://wa.me/27810248983` (no spaces, no `+`)
 
 ### Phone number
 
-Search for `081 467 3054` in `index.html` and replace it.
+Search for `0810248983` in `index.html` and replace it.
 
 ### Email address (displayed on site)
 
@@ -138,8 +138,8 @@ No build step needed. Upload the files as they are.
 | Item | Value |
 |------|-------|
 | Company name | SmP – WE CARE |
-| Phone | 081 467 3054 |
-| WhatsApp | +27 64 232 3431 |
+| Phone | 0810248983 |
+| WhatsApp | +27 81 024 8983 |
 | Email | smpwecare@gmail.com |
 | Notification email | smpwecare@gmail.com |
 | Brevo sender | emergesites@gmail.com |
