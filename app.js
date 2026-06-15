@@ -268,38 +268,25 @@ function initContractorForm() {
   });
 }
 
-function initHomePage() {
+function initHero() {
   const heroSlidesContainer = document.getElementById("hero-slides");
   const heroDotsContainer = document.getElementById("hero-dots");
   const heroService = document.getElementById("hero-service");
   const heroTitle = document.getElementById("hero-title");
   const heroDescription = document.getElementById("hero-description");
-  const galleryFilters = document.getElementById("gallery-filters");
-  const galleryGrid = document.getElementById("gallery-grid");
-  const imageModal = document.getElementById("image-modal");
-  const modalImage = document.getElementById("modal-image");
-  const modalService = document.getElementById("modal-service");
-  const modalTitle = document.getElementById("modal-title");
-  const modalDescription = document.getElementById("modal-description");
-  const closeModalButton = document.getElementById("close-modal");
 
-  if (!heroSlidesContainer || !heroDotsContainer || !galleryFilters || !galleryGrid) {
+  // Hero requires containers to initialise
+  if (!heroSlidesContainer || !heroDotsContainer) {
     return;
   }
 
-  const galleryShowMoreWrap = document.getElementById("gallery-show-more-wrap");
-  const galleryShowMoreBtn = document.getElementById("gallery-show-more");
-  const GALLERY_PAGE_SIZE = 6;
-
   let activeSlideIndex = 0;
-  let activeFilter = "All";
-  let galleryShowAll = false;
 
   function updateHeroContent(index) {
     const slide = heroSlides[index];
-    heroService.textContent = slide.service;
-    heroTitle.textContent = slide.title;
-    heroDescription.textContent = slide.description;
+    if (heroService) heroService.textContent = slide.service;
+    if (heroTitle) heroTitle.textContent = slide.title;
+    if (heroDescription) heroDescription.textContent = slide.description;
   }
 
   function showSlide(index) {
@@ -355,6 +342,31 @@ function initHomePage() {
       showSlide(activeSlideIndex);
     }, 4500);
   }
+
+  buildHeroSlides();
+  startSlideshow();
+}
+
+function initGallery() {
+  const galleryFilters = document.getElementById("gallery-filters");
+  const galleryGrid = document.getElementById("gallery-grid");
+  const imageModal = document.getElementById("image-modal");
+  const modalImage = document.getElementById("modal-image");
+  const modalService = document.getElementById("modal-service");
+  const modalTitle = document.getElementById("modal-title");
+  const modalDescription = document.getElementById("modal-description");
+  const closeModalButton = document.getElementById("close-modal");
+  const galleryShowMoreWrap = document.getElementById("gallery-show-more-wrap");
+  const galleryShowMoreBtn = document.getElementById("gallery-show-more");
+
+  // Gallery is optional — only initialise if elements exist
+  if (!galleryFilters || !galleryGrid) {
+    return;
+  }
+
+  const GALLERY_PAGE_SIZE = 6;
+  let activeFilter = "All";
+  let galleryShowAll = false;
 
   function openModal(image) {
     modalImage.src = asset(image.image);
@@ -472,10 +484,8 @@ function initHomePage() {
     }
   });
 
-  buildHeroSlides();
   renderFilters();
   renderGallery(activeFilter);
-  startSlideshow();
 }
 
 // Carousel content for the "Our Work" section.
@@ -599,7 +609,8 @@ function initMobileMenu() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initMobileMenu();
-  initHomePage();
+  initHero();
+  initGallery();
   initOurWorkCarousel();
   initQuoteForm();
   initContractorForm();
