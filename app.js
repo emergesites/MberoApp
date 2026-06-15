@@ -478,6 +478,8 @@ function initHomePage() {
   startSlideshow();
 }
 
+// Carousel content for the "Our Work" section.
+// Each object uses a before/after image pair and a descriptive label.
 const ourWorkProjects = [
   {
     before: "img/BeforeAfterGrass/Before.jpeg",
@@ -506,21 +508,26 @@ const ourWorkProjects = [
 ];
 
 function initOurWorkCarousel() {
-  const track = document.getElementById("our-work-track");
-  if (!track) return;
+  // Initialize three duplicate carousels stacked vertically.
+  // Each carousel reuses the same slide content.
+  const carousels = [
+    { carouselId: "our-work-carousel-1", trackId: "our-work-track-1" },
+    { carouselId: "our-work-carousel-2", trackId: "our-work-track-2" },
+    { carouselId: "our-work-carousel-3", trackId: "our-work-track-3" },
+  ];
 
-  track.innerHTML = ourWorkProjects
+  const slideMarkup = ourWorkProjects
     .map(
       (project) => `
       <li class="glide__slide">
         <div class="group relative overflow-hidden rounded-[24px] bg-white shadow-lg ring-1 ring-slate-200">
           <div class="grid grid-cols-2">
             <div class="relative">
-              <img src="${asset(project.before)}" alt="Before" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
+              <img src="${asset(project.before)}" alt="Before ${escapeHtml(project.title)}" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
               <span class="absolute top-3 left-3 rounded-full bg-red-500/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Before</span>
             </div>
             <div class="relative">
-              <img src="${asset(project.after)}" alt="After" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
+              <img src="${asset(project.after)}" alt="After ${escapeHtml(project.title)}" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
               <span class="absolute top-3 right-3 rounded-full bg-green-500/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">After</span>
             </div>
           </div>
@@ -534,18 +541,26 @@ function initOurWorkCarousel() {
     )
     .join("");
 
-  new Glide("#our-work-carousel", {
-    type: "carousel",
-    perView: 1,
-    focusAt: "center",
-    gap: 30,
-    peek: { before: 120, after: 120 },
-    autoplay: 4000,
-    hoverpause: true,
-    breakpoints: {
-      768: { peek: { before: 40, after: 40 }, gap: 16 },
-    },
-  }).mount();
+  carousels.forEach(({ carouselId, trackId }) => {
+    const track = document.getElementById(trackId);
+    if (!track) return;
+
+    // Populate each carousel track with the same set of slide cards.
+    track.innerHTML = slideMarkup;
+
+    new Glide(`#${carouselId}`, {
+      type: "carousel",
+      perView: 1,
+      focusAt: "center",
+      gap: 30,
+      peek: { before: 120, after: 120 },
+      autoplay: 4000,
+      hoverpause: true,
+      breakpoints: {
+        768: { peek: { before: 40, after: 40 }, gap: 16 },
+      },
+    }).mount();
+  });
 }
 
 function initMobileMenu() {
