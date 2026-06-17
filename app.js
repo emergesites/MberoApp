@@ -542,8 +542,8 @@ function initOurWorkCarousel() {
             </div>
           </div>
           // <div class="absolute inset-x-0 top-0 bg-gradient-to-b from-slate-950/95 via-slate-950/20 to-transparent px-6 py-5">
-          //   <h2 class="text-3xl font-black text-white sm:text-5xl">Before &amp; after transformations</h2>
-          //   <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200 sm:text-lg">Real results from SmP – WE CARE projects. See the difference quality workmanship makes.</p>
+          //   <h2 class="text-3xl font-black text-white sm:text-5xl"></h2>
+          //   <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200 sm:text-lg"></p>
           // </div>
           <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/90 via-slate-900/60 to-transparent p-5 pt-10">
             <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-300">${escapeHtml(project.service)}</p>
