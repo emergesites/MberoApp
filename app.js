@@ -489,27 +489,32 @@ function initGallery() {
 }
 
 // Carousel content for the "Our Work" section.
-// Each object uses a before/after image pair and a descriptive label.
-const ourWorkProjects = [
+// Existing before/after work remains in place, and the rest of the app images
+// are added to the carousel that matches each section heading.
+const existingOurWorkProjects = [
   {
+    type: "beforeAfter",
     before: "img/BeforeAfterGrass/Before.jpeg",
     after: "img/BeforeAfterGrass/Aftre1.jpeg",
     service: "Grounds & Maintenance",
     title: "School grounds clean-up",
   },
   {
+    type: "beforeAfter",
     before: "img/BeforeAfterGrass/Before.jpeg",
     after: "img/BeforeAfterGrass/After2.jpeg",
     service: "Grounds & Maintenance",
     title: "Large-area grass cutting",
   },
   {
+    type: "beforeAfter",
     before: "img/BeforeAfterGrass/Before.jpeg",
     after: "img/BeforeAfterGrass/After3.jpeg",
     service: "Grounds & Maintenance",
     title: "Garden restoration project",
   },
   {
+    type: "beforeAfter",
     before: "img/BeforeAfterPipe/Before.jpeg",
     after: "img/BeforeAfterPipe/After.jpeg",
     service: "Plumbing & Water",
@@ -517,52 +522,139 @@ const ourWorkProjects = [
   },
 ];
 
-function initOurWorkCarousel() {
-  // Initialize three duplicate carousels stacked vertically.
-  // Each carousel reuses the same slide content.
-  const carousels = [
-    { carouselId: "our-work-carousel-1", trackId: "our-work-track-1" },
-    { carouselId: "our-work-carousel-2", trackId: "our-work-track-2" },
-    { carouselId: "our-work-carousel-3", trackId: "our-work-track-3" },
-  ];
+const carouselGroups = [
+  {
+    carouselId: "our-work-carousel-1",
+    trackId: "our-work-track-1",
+    heading: "LANDSCAPING",
+    services: ["Landscaping", "Grounds & Maintenance"],
+  },
+  {
+    carouselId: "our-work-carousel-2",
+    trackId: "our-work-track-2",
+    heading: "PLUMBING",
+    services: ["Plumbing", "Plumbing & Water", "Plumbing & Water Systems"],
+  },
+  {
+    carouselId: "our-work-carousel-3",
+    trackId: "our-work-track-3",
+    heading: "CONSTRUCTION & PROPERTY SERVICES",
+    services: [
+      "Construction",
+      "Renovations",
+      "Electrical",
+      "Construction & Repairs",
+      "Painting & Finishes",
+      "Fencing & Security",
+    ],
+  },
+];
 
-  const slideMarkup = ourWorkProjects
-    .map(
-      (project) => `
+function normaliseService(service) {
+  return service
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function isMatchingService(service, group) {
+  const normalizedService = normaliseService(service);
+  return group.services.some((groupService) => {
+    const normalizedGroupService = normaliseService(groupService);
+    return (
+      normalizedService === normalizedGroupService ||
+      normalizedService.includes(normalizedGroupService) ||
+      normalizedGroupService.includes(normalizedService)
+    );
+  });
+}
+
+function getCarouselSlides(group) {
+  const seenImages = new Set();
+  const existingSlides = existingOurWorkProjects.filter((project) => isMatchingService(project.service, group));
+
+  existingSlides.forEach((project) => {
+    seenImages.add(project.before);
+    seenImages.add(project.after);
+  });
+
+  const addedImageSlides = galleryImages
+    .filter((image) => isMatchingService(image.service, group))
+    .filter((image) => {
+      if (seenImages.has(image.image)) return false;
+      seenImages.add(image.image);
+      return true;
+    })
+    .map((image) => ({
+      type: "image",
+      image: image.image,
+      service: image.service,
+      title: image.title,
+      description: image.description,
+    }));
+
+  return [...existingSlides, ...addedImageSlides];
+}
+
+function renderCarouselSlide(slide) {
+  if (slide.type === "beforeAfter") {
+    return `
       <li class="glide__slide">
         <div class="group relative overflow-hidden rounded-[24px] bg-white shadow-lg ring-1 ring-slate-200">
           <div class="grid grid-cols-2">
             <div class="relative">
-              <img src="${asset(project.before)}" alt="Before ${escapeHtml(project.title)}" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
+              <img src="${asset(slide.before)}" alt="Before ${escapeHtml(slide.title)}" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
               <span class="absolute top-3 left-3 rounded-full bg-red-500/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Before</span>
             </div>
             <div class="relative">
-              <img src="${asset(project.after)}" alt="After ${escapeHtml(project.title)}" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
+              <img src="${asset(slide.after)}" alt="After ${escapeHtml(slide.title)}" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
               <span class="absolute top-3 right-3 rounded-full bg-green-500/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">After</span>
             </div>
           </div>
-          // <div class="absolute inset-x-0 top-0 bg-gradient-to-b from-slate-950/95 via-slate-950/20 to-transparent px-6 py-5">
-          //   <h2 class="text-3xl font-black text-white sm:text-5xl"></h2>
-          //   <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200 sm:text-lg"></p>
-          // </div>
           <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/90 via-slate-900/60 to-transparent p-5 pt-10">
-            <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-300">${escapeHtml(project.service)}</p>
-            <p class="mt-1 text-lg font-black text-white">${escapeHtml(project.title)}</p>
+            <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-300">${escapeHtml(slide.service)}</p>
+            <p class="mt-1 text-lg font-black text-white">${escapeHtml(slide.title)}</p>
           </div>
         </div>
       </li>
-    `
-    )
-    .join("");
+    `;
+  }
 
-  carousels.forEach(({ carouselId, trackId }) => {
-    const track = document.getElementById(trackId);
-    if (!track) return;
+  return `
+    <li class="glide__slide">
+      <div class="group relative overflow-hidden rounded-[24px] bg-white shadow-lg ring-1 ring-slate-200">
+        <img src="${asset(slide.image)}" alt="${escapeHtml(slide.title)}" class="h-56 w-full object-cover sm:h-64 lg:h-72" />
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/90 via-slate-900/60 to-transparent p-5 pt-10">
+          <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-300">${escapeHtml(slide.service)}</p>
+          <p class="mt-1 text-lg font-black text-white">${escapeHtml(slide.title)}</p>
+          <p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-200">${escapeHtml(slide.description)}</p>
+        </div>
+      </div>
+    </li>
+  `;
+}
 
-    // Populate each carousel track with the same set of slide cards.
-    track.innerHTML = slideMarkup;
+function renderCarouselBullets(carouselElement, slideCount) {
+  const bullets = carouselElement.querySelector('[data-glide-el="controls[nav]"]');
+  if (!bullets) return;
 
-    new Glide(`#${carouselId}`, {
+  bullets.innerHTML = Array.from({ length: slideCount }, (_, index) => `
+    <button data-glide-dir="=${index}" class="glide__bullet h-3 w-3 rounded-full bg-slate-300 transition hover:bg-green-500" aria-label="Go to slide ${index + 1}"></button>
+  `).join("");
+}
+
+function initOurWorkCarousel() {
+  carouselGroups.forEach((group) => {
+    const carouselElement = document.getElementById(group.carouselId);
+    const track = document.getElementById(group.trackId);
+    if (!carouselElement || !track) return;
+
+    const slides = getCarouselSlides(group);
+    track.innerHTML = slides.map(renderCarouselSlide).join("");
+    renderCarouselBullets(carouselElement, slides.length);
+
+    new Glide(`#${group.carouselId}`, {
       type: "carousel",
       perView: 1,
       focusAt: "center",
