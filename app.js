@@ -546,15 +546,24 @@ function buildOurWorkSlideMarkup(image, displayService) {
   `;
 }
 
+function getCarouselBulletTargets(slideCount) {
+  const bulletCount = Math.min(slideCount, 3);
+  if (bulletCount <= 1) return [0].slice(0, bulletCount);
+
+  return Array.from({ length: bulletCount }, (_, index) =>
+    Math.round((index * (slideCount - 1)) / (bulletCount - 1))
+  );
+}
+
 function renderCarouselBullets(carousel, slideCount) {
   const nav = carousel.querySelector('[data-glide-el="controls[nav]"]');
   if (!nav) return;
 
-  nav.innerHTML = Array.from({ length: slideCount }, (_, index) => `
+  nav.innerHTML = getCarouselBulletTargets(slideCount).map((targetSlide, index) => `
     <button
-      data-glide-dir="=${index}"
+      data-glide-dir="=${targetSlide}"
       class="glide__bullet h-3 w-3 rounded-full bg-slate-300 transition hover:bg-green-500"
-      aria-label="Go to slide ${index + 1}"
+      aria-label="Go to carousel position ${index + 1}"
     ></button>
   `).join("");
 }
